@@ -1,0 +1,114 @@
+//Taiwan Top5000 Module 
+
+
+
+//gen var
+gen year1=0
+replace year1=1 if year==1995
+replace year1=2 if year==1996
+replace year1=3 if year==1997
+replace year1=4 if year==1998
+replace year1=5 if year==1999
+replace year1=6 if year==2000
+replace year1=7 if year==2001
+replace year1=8 if year==2002
+replace year1=9 if year==2003
+replace year1=10 if year==2004
+replace year1=11 if year==2005
+replace year1=12 if year==2006
+replace year1=13 if year==2007
+replace year1=14 if year==2008
+replace year1=15 if year==2009
+replace year1=16 if year==2010
+replace year1=17 if year==2011
+replace year1=18 if year==2012
+replace year1=19 if year==2013
+lab var year1 "時間序"
+
+//gen i_consortium=0
+//replace i_consortium=0 if missing(i_consortium) 
+//replace i_consortium=1 if consortium!= "."
+//replace i_consortium=0 if i_consortium = "."
+
+gen np_ch_rank=0
+replace np_ch_rank=1 if np_ch<0
+replace np_ch_rank= . if missing(np_ch)
+lab var np_ch_rank "稅後純益為負"
+
+gen top5000_i=0
+replace top5000_i=1 if top5000==0
+lab var top5000_i "退出五千大"
+
+gen sme_manu=0
+replace sme_manu=1 if (sme==1 & manufacturing_i==1)
+lab var sme_manu "中小企業且製造業"
+
+//table 1 敘述統計
+
+sum year1 i_consortium establishing_time listed_company consolidation sales_ch assets_nt_million return_on_assets np_ch capital_nt_million ep_ch sme employees_ch dtar_ch eps_ch aveprice_ch npo_i financial_i service_i manufacturing_i np_ch_rank top5000_i sme_manu
+
+sum year1 i_consortium establishing_time listed_company consolidation sales_ch assets_nt_million return_on_assets np_ch capital_nt_million ep_ch sme employees_ch dtar_ch eps_ch aveprice_ch np_ch_rank top5000_i sme_manu if manufacturing_i==1
+
+xi:sum year1 sales_ch ep_ch employees_ch dtar_ch establishing_time sme listed_company consolidation  sme i_consortium assets_nt_million i.ccis_b if manufacturing_i==1
+
+//table 2 相關係數
+
+pwcorr year1 i_consortium establishing_time listed_company consolidation sales_ch assets_nt_million return_on_assets np_ch capital_nt_million ep_ch sme employees_ch dtar_ch eps_ch aveprice_ch npo_i financial_i service_i manufacturing_i np_ch_rank top5000_i sme_manu, star(.05)
+
+//table 3 Weibull「企業稅後純益為負值」
+
+eststo clear
+stset year1, failure(np_ch_rank)
+streg sales_ch ep_ch employees_ch dtar_ch establishing_time sme listed_company consolidation if manufacturing_i==1, dist(weibull) noshow nolog
+est store m3_1
+streg sales_ch ep_ch employees_ch dtar_ch establishing_time sme listed_company consolidation  sme i_consortium if manufacturing_i==1 , dist(weibull) noshow nolog
+est store m3_2
+streg sales_ch ep_ch employees_ch dtar_ch establishing_time sme listed_company consolidation  sme i_consortium assets_nt_million if manufacturing_i==1 , dist(weibull) noshow nolog
+est store m3_3
+xi:streg sales_ch ep_ch employees_ch dtar_ch establishing_time sme listed_company consolidation  sme i_consortium assets_nt_million i.ccis_b if manufacturing_i==1 , dist(weibull) noshow nolog
+est store m3_4
+esttab * using "C:\Users\lin928\Desktop\TOP5000_weibull.csv", cells("b(fmt(4) star)" se(par fmt(4))) replace r2(4) ar2(4) pr2(4) scalars("ll Log likelihood" "chi2 Chi-squared") sfmt(4) starlevels(+ .1 * .05 ** .01 *** .001)
+
+//table 4 Fixed Effect and Random Effect,combined
+//sales_ch
+eststo clear
+xtset id year1
+xtreg sales_ch ep_ch assets_nt_million employees_ch dtar_ch establishing_time listed_company consolidation i_consortium sme if manufacturing_i==1, fe
+est store m4_1
+xtreg sales_ch ep_ch assets_nt_million employees_ch dtar_ch establishing_time listed_company consolidation i_consortium sme if manufacturing_i==1, re
+est store m4_2
+//Net profit
+xtreg np_ch sales_ch assets_nt_million employees_ch dtar_ch establishing_time listed_company consolidation i_consortium sme if manufacturing_i==1, fe
+est store m4_3
+xtreg np_ch sales_ch assets_nt_million employees_ch dtar_ch establishing_time listed_company consolidation i_consortium sme if manufacturing_i==1, re
+est store m4_4
+//Net Profit Margin
+xtreg ep_ch sales_ch assets_nt_million employees_ch dtar_ch establishing_time listed_company consolidation i_consortium sme if manufacturing_i==1, fe
+est store m4_5
+xtreg ep_ch sales_ch assets_nt_million employees_ch dtar_ch establishing_time listed_company consolidation i_consortium sme if manufacturing_i==1, re
+est store m4_6
+xi:xtreg ep_ch sales_ch assets_nt_million employees_ch dtar_ch establishing_time listed_company consolidation i_consortium sme i.ccis_b if manufacturing_i==1, fe
+est store m4_7
+xi:xtreg ep_ch sales_ch assets_nt_million employees_ch dtar_ch establishing_time listed_company consolidation i_consortium sme i.ccis_b if manufacturing_i==1, re
+est store m4_8
+esttab * using "C:\Users\lin928\Desktop\TOP5000_xtset2.csv", cells("b(fmt(4) star)" se(par fmt(4))) replace r2(4) ar2(4) pr2(4) scalars("ll Log likelihood" "chi2 Chi-squared") sfmt(4) starlevels(+ .1 * .05 ** .01 *** .001)
+
+
+
+
+//「企業退出純益率排名機率」
+//no failure
+eststo clear
+stset year1, failure(top5000_i)
+streg sales_ch ep_ch employees_ch dtar_ch establishing_time sme listed_company consolidation , dist(weibull) noshow nolog
+est store m3_1
+streg sales_ch ep_ch employees_ch dtar_ch establishing_time sme listed_company consolidation sme_manu i_consortium , dist(weibull) noshow nolog
+est store m3_2
+streg sales_ch sgr_ch employees_ch dtar_ch establishing_time sme listed_company consolidation sme_manu i_consortium manufacturing_i , dist(weibull) noshow nolog
+est store m3_3
+streg sales_ch sgr_ch employees_ch dtar_ch establishing_time sme listed_company consolidation sme_manu i_consortium manufacturing_i service_i npo_i, dist(weibull) noshow nolog
+est store m3_4
+esttab * using "C:\Users\lin928\Desktop\TOP50001_1.csv", cells("b(fmt(4) star)" se(par fmt(4))) replace r2(4) ar2(4) pr2(4) scalars("ll Log likelihood" "chi2 Chi-squared") sfmt(4) starlevels(+ .1 * .05 ** .01 *** .001)
+
+
+

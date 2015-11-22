@@ -1,0 +1,161 @@
+// gen new var for missing converting to zero
+gen gt_asset = 0
+replace  gt_asset = group_assets_nt_million if !missing(group_assets_nt_million)
+lab var gt_asset "Z集團資產(百萬)"
+
+gen gt_sales = 0
+replace  gt_sales = group_sales_nt_million if !missing(group_sales_nt_million)
+lab var gt_sales "Z集團營收淨額(百萬)"
+
+gen gt_np_ch = 0
+replace  gt_np_ch = group_np_ch if !missing(group_np_ch)
+lab var gt_np_ch "Z集團稅後純益(百萬)"
+
+gen gt_ownc = 0
+replace gt_ownc = group_ownc_r if !missing(group_ownc_r)
+lab var gt_ownc "Z集團自有資金比率(%)"
+
+gen gt_sgr = 0
+replace gt_sgr = group_sgr_ch if !missing(group_sgr_ch)
+lab var gt_sgr "Z集團營收成長率(%)"
+
+gen gt_productivity = 0
+replace gt_productivity = group_productivity_nt_thousand if !missing(group_productivity_nt_thousand)
+lab var gt_productivity "Z集團每員工生產力指標(千元)"
+
+gen gt_ep_ch = 0
+replace gt_ep_ch = group_ep_ch if !missing(group_ep_ch)
+lab var gt_ep_ch "Z集團純益率(%)"
+
+gen gt_subsidiaries_china = 0
+replace gt_subsidiaries_china = ac_group_subsidiaries_china if !missing(ac_group_subsidiaries_china)
+lab var gt_subsidiaries_china "Z集團中國大陸分子公司數"
+
+gen gt_assets_china = 0
+replace gt_assets_china = ac_group_assets_china if !missing(ac_group_assets_china)
+lab var gt_assets_china "Z集團中國大陸資產總額(百萬)"
+
+gen gt_sales_china = 0
+replace gt_sales_china = ac_group_sales_china if !missing(ac_group_sales_china)
+lab var gt_sales_china "Z集團中國大陸營收淨額(百萬)"
+
+gen gt_net_worth_china = 0
+replace gt_net_worth_china = ac_group_net_worth if !missing(ac_group_net_worth)
+lab var gt_net_worth_china "Z集團中國大陸淨值(百萬)"
+
+gen gt_np_ch_china = 0
+replace gt_np_ch_china = ac_group_np_ch_china if !missing(ac_group_np_ch_china)
+lab var gt_np_ch_china "Z集團中國大陸稅後純益(百萬)"
+
+gen gt_capital_china = 0
+replace gt_capital_china = ac_group_capital_china if !missing(ac_group_capital_china)
+lab var gt_capital_china "Z集團中國大陸資本額(百萬)"
+
+gen gt_emp_china = 0
+replace gt_emp_china = ac_group_employees_china if !missing(ac_group_employees_china)
+lab var gt_emp_china "Z集團中國大陸員工數(百萬)"
+
+//descriptive statistics
+
+sum year i_consortium sales_ch ep_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china  if manufacturing_i==1 /// 
+& sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=. & gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  /// 
+& gt_np_ch_china~=.  & gt_emp_china~=.
+sum year i_consortium sales_ch ep_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 & i_consortium ==1 ///
+& sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=. & gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  /// 
+& gt_np_ch_china~=.  & gt_emp_china~=.
+
+
+//correlation
+pwcorr year1 i_consortium sales_ch ep_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 ///
+& sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=. & gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  /// 
+& gt_np_ch_china~=.  & gt_emp_china~=. , star(.05)
+
+//graph's data  
+tab year if sme==0 & manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=. & gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=. & gt_np_ch_china~=.  & gt_emp_china~=. , sum(sales_ch)
+tab year if sme==0 & manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=. & gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=. & gt_np_ch_china~=.  & gt_emp_china~=. , sum( ep_ch )
+tab year if sme==1 & manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=. & gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=. & gt_np_ch_china~=.  & gt_emp_china~=. , sum(sales_ch)
+tab year if sme==1 & manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=. & gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=. & gt_np_ch_china~=.  & gt_emp_china~=. , sum( ep_ch )
+
+
+
+//table 2 Fixed Effect and Random Effect only in Manufacturing
+eststo clear
+set more off
+xtset id year
+xtreg sales_ch ep_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 , re
+est store m1_1
+xtreg sales_ch ep_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 , fe
+est store m1_2
+xtreg ep_ch sales_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 , re
+est store m1_3
+xtreg ep_ch sales_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 , fe
+est store m1_4
+xtlogit np_ch_rank sales_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 , re iter(20)
+est store m1_5
+xtlogit np_ch_rank sales_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 , fe iter(20)
+est store m1_6
+esttab * using "C:\Users\esforum\Desktop\TOP5000_FixAndRan.csv", cells("b(fmt(4) star)" se(par fmt(4))) replace r2(4) ar2(4) pr2(4) scalars("ll Log likelihood" "chi2 Chi-squared") sfmt(4) starlevels(+ .1 * .05 ** .01 *** .001)
+
+
+//table3 Fixed Effect and Random Effect only in Manufacturing && Consordium
+eststo clear
+set more off
+xtset id year
+xtreg sales_ch ep_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 & i_consortium ==1, re
+est store m2_1
+xtreg sales_ch ep_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 & i_consortium ==1, fe
+est store m2_2
+xtreg ep_ch sales_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 & i_consortium ==1, re
+est store m2_3
+xtreg ep_ch sales_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 & i_consortium ==1, fe
+est store m2_4
+xtlogit np_ch_rank sales_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 & i_consortium ==1, re iter(20)
+est store m2_5
+xtlogit np_ch_rank sales_ch assets_nt_million employees_ch age sme listed_company gt_asset gt_sales gt_ep_ch gt_assets_china gt_sales_china gt_np_ch_china gt_emp_china if manufacturing_i==1 & i_consortium ==1, fe iter(20)
+est store m2_6
+esttab * using "C:\Users\esforum\Desktop\TOP5000_FixAndRan2.csv", cells("b(fmt(4) star)" se(par fmt(4))) replace r2(4) ar2(4) pr2(4) scalars("ll Log likelihood" "chi2 Chi-squared") sfmt(4) starlevels(+ .1 * .05 ** .01 *** .001)
+
+/*
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==1995
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==1996
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==1997
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==1998
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==1999
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2000
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2001
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2002
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2003
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2004
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2005
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2006
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2007
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2008
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2009
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2010
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2011
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2012
+sum id if manufacturing_i==1 & sales_ch~=. & ep_ch~=.  & assets_nt_million~=.  & employees_ch~=.  & age~=.  & sme~=.  & listed_company~=.  ///
+& gt_asset~=.  & gt_sales~=.  & gt_ep_ch~=.  & gt_assets_china~=.  & gt_sales_china~=.  & gt_np_ch_china~=.   & gt_emp_china~=. & year==2013
+
+
+*/
+
+
